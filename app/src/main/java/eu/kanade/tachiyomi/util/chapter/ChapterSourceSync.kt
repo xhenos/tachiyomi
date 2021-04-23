@@ -57,7 +57,10 @@ fun syncChaptersWithSource(
 
         // Add the chapter if not in db already, or update if the metadata changed.
         if (dbChapter == null) {
-            toAdd.add(sourceChapter)
+            val chapter = sourceChapter.apply {
+                date_upload = date_upload.takeIf { it > 0 } ?: System.currentTimeMillis()
+            }
+            toAdd.add(chapter)
         } else {
             // this forces metadata update for the main viewable things in the chapter list
             if (source is HttpSource) {
@@ -72,7 +75,7 @@ fun syncChaptersWithSource(
                 }
                 dbChapter.scanlator = sourceChapter.scanlator
                 dbChapter.name = sourceChapter.name
-                dbChapter.date_upload = sourceChapter.date_upload
+                dbChapter.date_upload = sourceChapter.date_upload.takeIf { it > 0 } ?: dbChapter.date_fetch
                 dbChapter.chapter_number = sourceChapter.chapter_number
                 toChange.add(dbChapter)
             }
