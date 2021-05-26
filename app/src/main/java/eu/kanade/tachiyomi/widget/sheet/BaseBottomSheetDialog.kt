@@ -2,12 +2,15 @@ package eu.kanade.tachiyomi.widget.sheet
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.preference.PreferenceValues
@@ -44,7 +47,25 @@ abstract class BaseBottomSheetDialog(context: Context) : BottomSheetDialog(conte
         // TODO Replace deprecated systemUiVisibility when material-components uses new API to modify status bar icons
         @Suppress("DEPRECATION")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            window?.setNavigationBarTransparentCompat(context)
+            val bottomSheet = rootView.parent as ViewGroup
+            val isLandscape = context.resources.configuration.orientation and Configuration.ORIENTATION_LANDSCAPE != 0
+            if (isLandscape) {
+                window?.navigationBarColor = Color.TRANSPARENT
+
+                // Workaround for padding issue on landscape
+                // https://github.com/material-components/material-components-android/issues/2221
+                ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+                    (bottomSheet.parent as ViewGroup).updatePadding(
+                        left = bottomSheet.paddingLeft,
+                        right = bottomSheet.paddingRight
+                    )
+                    bottomSheet.updatePadding(left = 0, right = 0)
+                    insets
+                }
+            } else {
+                window?.setNavigationBarTransparentCompat(context)
+            }
+
             val isDarkMode = when (Injekt.get<PreferencesHelper>().themeMode().get()) {
                 PreferenceValues.ThemeMode.light -> false
                 PreferenceValues.ThemeMode.dark -> true
@@ -52,9 +73,8 @@ abstract class BaseBottomSheetDialog(context: Context) : BottomSheetDialog(conte
                     context.resources.configuration.uiMode and
                         Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
             }
-            val bottomSheet = rootView.parent as ViewGroup
             var flags = bottomSheet.systemUiVisibility
-            flags = if (isDarkMode) {
+            flags = if (isDarkMode || isLandscape) {
                 flags and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
             } else {
                 flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
