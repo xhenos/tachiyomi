@@ -41,26 +41,8 @@ class AboutController : SettingsController(), NoToolbarElevationController {
     private val isUpdaterEnabled = BuildConfig.INCLUDE_UPDATER
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) = screen.apply {
-        titleRes = R.string.pref_category_about
+        add(AboutHeaderPreference(context))
 
-        add(MoreHeaderPreference(context))
-
-        preference {
-            key = "pref_about_version"
-            titleRes = R.string.version
-            summary = if (BuildConfig.DEBUG) {
-                "Preview r${BuildConfig.COMMIT_COUNT} (${BuildConfig.COMMIT_SHA}, ${getFormattedBuildTime()})"
-            } else {
-                "Stable ${BuildConfig.VERSION_NAME} (${getFormattedBuildTime()})"
-            }
-
-            onClick {
-                activity?.let {
-                    val deviceInfo = CrashLogUtil(it).getDebugInfo()
-                    it.copyToClipboard("Debug information", deviceInfo)
-                }
-            }
-        }
         if (isUpdaterEnabled) {
             preference {
                 key = "pref_about_check_for_updates"
@@ -80,6 +62,21 @@ class AboutController : SettingsController(), NoToolbarElevationController {
                     "https://github.com/tachiyomiorg/tachiyomi/releases/tag/v${BuildConfig.VERSION_NAME}"
                 }
                 openInBrowser(url)
+            }
+        }
+        preference {
+            key = "pref_about_build_info"
+            titleRes = R.string.build_info
+            summary = "${getFormattedBuildTime()} (${BuildConfig.COMMIT_SHA})"
+        }
+        preference {
+            key = "pref_about_copy_debug_info"
+            titleRes = R.string.copy_debug_info
+            onClick {
+                activity?.let {
+                    val deviceInfo = CrashLogUtil(it).getDebugInfo()
+                    it.copyToClipboard("Debug information", deviceInfo)
+                }
             }
         }
         preference {
