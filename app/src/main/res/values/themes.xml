@@ -95,6 +95,10 @@
         <item name="colorLibrarySelection">?attr/colorAccent</item>
         <item name="colorLibrarySelectionActive">@color/selectorColorLight</item>
         <item name="colorFilterActive">@color/filterColorLight</item>
+
+        <!-- Splash Screen -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_tachi_splash</item>
+        <item name="android:windowSplashScreenBackground">?attr/colorPrimary</item>
     </style>
 
     <!--==============-->
@@ -241,6 +245,10 @@
         <item name="colorLibrarySelection">?attr/colorAccent</item>
         <item name="colorLibrarySelectionActive">@color/selectorColorDark</item>
         <item name="colorFilterActive">@color/filterColorDark</item>
+
+        <!-- Splash Screen -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_tachi_splash</item>
+        <item name="android:windowSplashScreenBackground">?attr/colorPrimary</item>
     </style>
 
     <!--== Dark theme ==-->

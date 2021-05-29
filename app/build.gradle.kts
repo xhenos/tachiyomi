@@ -19,8 +19,7 @@ if (gradle.startParameter.taskRequests.toString().contains("Standard")) {
 shortcutHelper.setFilePath("./shortcuts.xml")
 
 android {
-    compileSdkVersion(AndroidConfig.compileSdk)
-    buildToolsVersion(AndroidConfig.buildTools)
+    compileSdkVersion("android-S")
     ndkVersion = AndroidConfig.ndk
 
     defaultConfig {

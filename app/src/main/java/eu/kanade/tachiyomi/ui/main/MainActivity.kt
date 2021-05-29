@@ -1,18 +1,22 @@
 package eu.kanade.tachiyomi.ui.main
 
+import android.animation.ObjectAnimator
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnticipateInterpolator
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceDialogController
 import com.bluelinelabs.conductor.Conductor
@@ -85,6 +89,50 @@ class MainActivity : BaseViewBindingActivity<MainActivityBinding>() {
         super.onCreate(savedInstanceState)
 
         binding = MainActivityBinding.inflate(layoutInflater)
+
+        @Suppress("DEPRECATION")
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val oldFlags = window.decorView.systemUiVisibility
+            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+
+            val splashAnim = ObjectAnimator.ofFloat(0f, 1f).also {
+                it.interpolator = AnticipateInterpolator()
+                it.duration = 450L
+                val totalIncreaseScale = 5F
+                it.addUpdateListener { va ->
+                    val value = va.animatedValue as Float
+                    val scale = 1F + (value * totalIncreaseScale)
+                    splashScreenView.iconView?.scaleX = scale
+                    splashScreenView.iconView?.scaleY = scale
+
+                    // Fade
+                    if (value >= 0.6F) {
+                        splashScreenView.alpha = 1F - value
+                    }
+                }
+                it.doOnEnd {
+                    splashScreenView.remove()
+                    window.decorView.systemUiVisibility = oldFlags
+                }
+            }
+
+            val activityAnim = ObjectAnimator.ofFloat(0F, 1F).also {
+                it.interpolator = FastOutSlowInInterpolator()
+                it.duration = 700L
+                val totalIncreaseScale = 0.6F
+                it.addUpdateListener { va ->
+                    val value = va.animatedValue as Float
+                    val scale = 1F + ((1F - value) * totalIncreaseScale)
+                    binding.root.alpha = value
+                    binding.root.scaleX = scale
+                    binding.root.scaleY = scale
+                }
+            }
+
+            splashAnim.start()
+            activityAnim.start()
+        }
 
         // Do not let the launcher create a new activity http://stackoverflow.com/questions/16283079
         if (!isTaskRoot) {

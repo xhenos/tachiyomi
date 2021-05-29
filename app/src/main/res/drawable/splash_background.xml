@@ -3,10 +3,6 @@
 
     <item android:drawable="?attr/colorBackgroundSplash" />
 
-    <item
-        android:width="72dp"
-        android:height="72dp"
-        android:drawable="@drawable/ic_tachi"
-        android:gravity="center" />
+    <item android:drawable="@drawable/ic_tachi_splash" />
 
 </layer-list>
