@@ -17,26 +17,23 @@ import eu.kanade.tachiyomi.ui.base.controller.openInBrowser
 import eu.kanade.tachiyomi.ui.setting.SettingsController
 import eu.kanade.tachiyomi.util.CrashLogUtil
 import eu.kanade.tachiyomi.util.lang.launchNow
-import eu.kanade.tachiyomi.util.lang.toDateTimestampString
 import eu.kanade.tachiyomi.util.preference.add
 import eu.kanade.tachiyomi.util.preference.onClick
 import eu.kanade.tachiyomi.util.preference.preference
 import eu.kanade.tachiyomi.util.preference.titleRes
 import eu.kanade.tachiyomi.util.system.copyToClipboard
-import eu.kanade.tachiyomi.util.system.openInBrowser
 import eu.kanade.tachiyomi.util.system.toast
 import timber.log.Timber
-import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
 
 class AboutController : SettingsController(), NoToolbarElevationController {
 
     private val updateChecker by lazy { GithubUpdateChecker() }
-
-    private val dateFormat: DateFormat = preferences.dateFormat()
 
     private val isUpdaterEnabled = BuildConfig.INCLUDE_UPDATER
 
@@ -67,7 +64,8 @@ class AboutController : SettingsController(), NoToolbarElevationController {
         preference {
             key = "pref_about_build_info"
             titleRes = R.string.build_info
-            summary = "${getFormattedBuildTime()} (${BuildConfig.COMMIT_SHA})"
+            summary = "#${BuildConfig.COMMIT_COUNT}-${BuildConfig.BUILD_TYPE}-${BuildConfig.COMMIT_SHA}" +
+                "\n${BuildConfig.BUILD_TIME}"
         }
         preference {
             key = "pref_about_copy_debug_info"
@@ -152,20 +150,15 @@ class AboutController : SettingsController(), NoToolbarElevationController {
         }
     }
 
-    private fun getFormattedBuildTime(): String {
+    private fun getFormattedBuildTime(): String? {
         return try {
-            val inputDf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US)
+            val inputDf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
             inputDf.timeZone = TimeZone.getTimeZone("UTC")
-            val buildTime = inputDf.parse(BuildConfig.BUILD_TIME)
-
-            val outputDf = DateFormat.getDateTimeInstance(
-                DateFormat.MEDIUM,
-                DateFormat.SHORT,
-                Locale.getDefault()
-            )
-            outputDf.timeZone = TimeZone.getDefault()
-
-            buildTime.toDateTimestampString(dateFormat)
+            inputDf.parse(BuildConfig.BUILD_TIME)?.run {
+                val formatter = DateTimeFormatter.ofPattern("E, MMM dd yyyy HH:mm:ss a z").withLocale(Locale.US)
+                toInstant().atZone(ZoneId.of("UTC")).format(formatter)
+//                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG, Locale.US).format(this)
+            }
         } catch (e: ParseException) {
             BuildConfig.BUILD_TIME
         }

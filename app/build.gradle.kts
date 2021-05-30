@@ -323,7 +323,7 @@ fun getGitSha(): String {
 }
 
 fun getBuildTime(): String {
-    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
+    val df = SimpleDateFormat("E, MMM dd yyyy HH:mm:ss a z")
     df.timeZone = TimeZone.getTimeZone("UTC")
     return df.format(Date())
 }

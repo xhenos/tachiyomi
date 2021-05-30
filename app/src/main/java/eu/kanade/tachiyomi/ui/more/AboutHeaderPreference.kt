@@ -18,18 +18,11 @@ class AboutHeaderPreference @JvmOverloads constructor(
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
 
-        val appName = holder.findViewById(R.id.appName) as TextView
-        appName.text = if (BuildConfig.DEBUG) {
-            "${context.getString(R.string.app_name)} Preview"
-        } else {
-            "${context.getString(R.string.app_name)} Stable"
-        }
-
         val version = holder.findViewById(R.id.version) as TextView
         version.text = if (BuildConfig.DEBUG) {
-            "r${BuildConfig.COMMIT_COUNT}"
+            "Preview r${BuildConfig.COMMIT_COUNT}"
         } else {
-            "v${BuildConfig.VERSION_NAME}"
+            "Stable v${BuildConfig.VERSION_NAME}"
         }
         version.setOnClickListener {
             val deviceInfo = CrashLogUtil(context).getDebugInfo()
