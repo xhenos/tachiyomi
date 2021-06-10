@@ -410,4 +410,9 @@
         <item name="android:selectableItemBackground">@drawable/ripple_background</item>
     </style>
 
+    <style name="ShapeAppearanceOverlay.MaterialCardView.Rounded.8Dp" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
 </resources>
